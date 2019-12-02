@@ -8,7 +8,7 @@ import logging
 import sys
 
 
-db = create_engine('postgresql://postgres:postres@localhost:54322/huitzi',echo=True)
+db = create_engine('postgresql://postgres:postgres@db:5432/nqueen')#,echo=True)
 Base = declarative_base()
 
 class Solution(Base):
