@@ -1,6 +1,7 @@
 
 from __future__ import print_function
-
+import sys
+from dao import Solution, save_solutions,delete_solutions, list_solutions
 
 def print_board(board):
     for i in range(len(board)):
@@ -78,14 +79,63 @@ class Board:
                     current_line = current_line - 1
                     continue
 
+def print_help():
+    print(''' 
+        Solves the n-queen problem.
+                Options:
+                    calculate num-of-queens(i.e. calculate 8)
+                    save-in-db num-of-queens (i.e. save-in-db 8)
+                    list-results num-of-queens (i.e. list-results 8)
+                    find-first num-of-queens (i.e.find-first 8)
+            ''')
 
+if __name__ == "__main__":
+    if len(sys.argv) >= 3:
+        option = sys.argv[1]
+        try:
+            board_size = int(sys.argv[2])
+        except:
+            print_help()
+            exit()
+        if option == 'calculate':
+            print(len(list(Board(n=board_size).find_solutions())))
+        elif option == 'find-first':
+            try:
+                print_board(next(Board(n=board_size).find_solutions()))
+            except:
+                print("Solution not found for %d" % (board_size))
+        elif option == 'save-in-db':
+            delete_solutions(n=board_size)
+            board = Board(n=board_size)
+            find_solutions = iter(board.find_solutions())
+            solutions = []
+            while True:
+                try:
+                    next_solution = next(find_solutions)
+                except:
+                    if solutions:
+                        save_solutions(n=board_size,solutions=solutions)
+                    break
+                solutions.append(next_solution[:])
+                if len(solutions) >= 100:
+                    save_solutions(n=board_size,solutions=solutions)
+                    solutions = []
+            print("Info saved for board : %d" % (board_size) )
+        elif option == 'list-results':
+            solutions = list_solutions(n=board_size)
+            print("Total of solutions: %d " %(len(solutions)))
+            if len(solutions) > 0:
+                for solution in solutions:
+                    print_board(solution.result)
+            else:
+                print("Result for solutions %d not found. First execute 'save-in-db ' "% (board_size))
+                print_help()
 
-board = Board(n=8)
-#for solution in board.find_solutions():
-#    print_board(solution)
-
-print(len(list(Board(n=8).find_solutions())))
-
+        else:
+            print_help()
+        
+    else:
+        print_help()
 
 #import timeit
 #print(timeit.timeit(lambda: solve(n=8),number=1))
