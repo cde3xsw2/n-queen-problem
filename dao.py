@@ -4,9 +4,11 @@ from sqlalchemy.types import JSON
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
+import logging
+import sys
 
 
-db = create_engine('postgresql://postgres:postres@localhost:5432/huitzi',echo=True)
+db = create_engine('postgresql://postgres:postres@localhost:54322/huitzi',echo=True)
 Base = declarative_base()
 
 class Solution(Base):
@@ -21,7 +23,10 @@ class Solution(Base):
 
 Session = sessionmaker(db)
 session = Session()
-Base.metadata.create_all(db)
+try:
+    Base.metadata.create_all(db)
+except:
+    print(sys.exc_info()[1])
 
 def save_solutions(n,solutions):
     entities =  [Solution(n=n,result=solution)  for solution in solutions]
